@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<GUI>
+  <Layer name="SaluteLayer" background="Background1">
+    <Controls>
+      <SaluteWidget name="SaluteWidget" designWidth="1920" designHeight="1080"/>
+    </Controls>
+  </Layer>
+</GUI>
