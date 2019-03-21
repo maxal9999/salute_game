@@ -88,24 +88,24 @@ extern const std::string SALUTE_TYPE_FORTH;
 class Config
 {
 public:
-	Config() = default;
+    Config() = default;
 
-	using SettingType = std::pair<std::string, std::string>;
-	using SettingsType = std::list<SettingType>;
+    using SettingType = std::pair<std::string, std::string>;
+    using SettingsType = std::list<SettingType>;
 
-	// Background types
-	static SettingsType Backgrounds();
+    // Background types
+    static SettingsType Backgrounds();
 
-	// Salute difficulty
-	static SettingsType Difficulty();
+    // Salute difficulty
+    static SettingsType Difficulty();
 
-	// Salute types
-	static SettingsType SaluteTypes();
-	static int SaluteCount();
+    // Salute types
+    static SettingsType SaluteTypes();
+    static int SaluteCount();
 
-	// Window's width
-	static int WinWidth();
+    // Window's width
+    static int WinWidth();
 
-	// Window's height
-	static int WinHeight();
+    // Window's height
+    static int WinHeight();
 };

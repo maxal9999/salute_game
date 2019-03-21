@@ -24,12 +24,12 @@ struct RocketParams
     int mY;
     float mRotateAngle;
     int mLevel;
-	std::string mSaluteEffectName;
+    std::string mSaluteEffectName;
     bool mMainRocket;
 
     RocketParams(int x, int y, float angle, int level, 
-		         const std::string& effect_name,
-		         bool is_main = false);
+                 const std::string& effect_name,
+                 bool is_main = false);
 };
 
 //------------------------------------------------------------------------------------
@@ -42,30 +42,30 @@ struct Rocket
     // Calculation of the angle of rotation of the rocket and the initial coordinates
     void CalcAngles(float rotate_angle);
 
-	// Ending all effects, delete pointer to texture
-	bool Clear();
+    // Ending all effects, delete pointer to texture
+    bool Clear();
 
     // Create new rockets for continue salute
     std::list<RocketParams> CreateSubRockets(const std::string& salute_type, int level_limit);
 
-	// Rocket drawing.
-	// Accepts a link to the object vector object.
-	void Draw();
+    // Rocket drawing.
+    // Accepts a link to the object vector object.
+    void Draw();
 
-	// Draw all effects
-	void DrawEffects(EffectsContainer& eff_cont);
+    // Draw all effects
+    void DrawEffects(EffectsContainer& eff_cont);
     
     // Method for simple drawing of a rocket
     void SimpleDraw();
 
-	// Flag denoting the moment of a rocket shot
-	bool mFirstDraw;
+    // Flag denoting the moment of a rocket shot
+    bool mFirstDraw;
 
-	// Rocket fly effect
-	ParticleEffectPtr mFlyEffect;
+    // Rocket fly effect
+    ParticleEffectPtr mFlyEffect;
 
-	// The flag is responsible for the paused in the rocket moving.
-	bool mIsPaused;
+    // The flag is responsible for the paused in the rocket moving.
+    bool mIsPaused;
 
     // Flag the main rocket
     bool mMainRocket;
@@ -74,15 +74,15 @@ protected:
     // Drag param
     float mCm;
 
-	// Corrective params
-	float mDeltaX;
-	float mDeltaY;
+    // Corrective params
+    float mDeltaX;
+    float mDeltaY;
     
     // Swift param
     float mKm;
 
-	// Rocket texture
-	Render::Texture* mTexture;
+    // Rocket texture
+    Render::Texture* mTexture;
 
 private:
     // Array to store data about the previous position of the rocket
@@ -97,34 +97,34 @@ private:
     // Rocket movement method
     void Move();
 
-	// Distance rocket fly
-	float mDistance;
+    // Distance rocket fly
+    float mDistance;
 
-	// The flag is responsible for the use of rocket.
-	bool mIsUsed;
+    // The flag is responsible for the use of rocket.
+    bool mIsUsed;
 
-	// Level of the rockets
-	int mLevel;
+    // Level of the rockets
+    int mLevel;
 
-	// Rocket size
-	utils::Rect mRect;
-	utils::Rect mInitRect;
+    // Rocket size
+    utils::Rect mRect;
+    utils::Rect mInitRect;
 
-	// Salute gun shot effect
-	ParticleEffectPtr mShotEffect;
+    // Salute gun shot effect
+    ParticleEffectPtr mShotEffect;
 
-	// Rocket salute effect
-	ParticleEffectPtr mSaluteEffect;
-	std::string mSaluteEffectName;
+    // Rocket salute effect
+    ParticleEffectPtr mSaluteEffect;
+    std::string mSaluteEffectName;
 };
 
 //------------------------------------------------------------------------------------
 // Kind of rockets for salute
 struct RedRocket : public Rocket
 {
-	RedRocket(const RocketParams& params);
+    RedRocket(const RocketParams& params);
 private:
-	void InitRocketParams();
+    void InitRocketParams();
 };
 
 //------------------------------------------------------------------------------------
@@ -155,8 +155,8 @@ public:
     // Drawing all rockets fired
     void RocketsDraw(EffectsContainer& eff_cont, const std::string& limit_str);
 
-	// Set an effect of the rockets
-	void SetEffect(const std::string& effect_name);
+    // Set an effect of the rockets
+    void SetEffect(const std::string& effect_name);
     
     // Gun shot method
     bool Shot(bool forced = false);
@@ -168,8 +168,8 @@ private:
     int mMinX;
     int mMaxX;
 
-	// The flag is responsible for the paused in the rocket moving.
-	bool mIsPaused;
+    // The flag is responsible for the paused in the rocket moving.
+    bool mIsPaused;
 
     // Previous time to calculate rocket flight
     float mPrevTime;
@@ -180,8 +180,8 @@ private:
     // Rockets array.
     std::list<RocketPtr> mRocketPool;
 
-	// Rocket salute effect name
-	std::string mSaluteEffectName;
+    // Rocket salute effect name
+    std::string mSaluteEffectName;
 
     // Shot timer. The current gun shoots every 0.5 seconds.
     Core::Timer mShotTimer;

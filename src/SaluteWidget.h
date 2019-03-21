@@ -12,9 +12,9 @@ public:
     
     void Draw() override;
     void Update(float dt) override;
-    	
+        
     void AcceptMessage(const Message& message) override;
-    	
+        
     bool MouseDown(const IPoint& mouse_pos) override;
     void MouseMove(const IPoint& mouse_pos) override;
     void MouseUp(const IPoint& mouse_pos) override;
@@ -24,24 +24,24 @@ public:
 
 private:
     void Init();
-	int InitButtons();
-	void InitMenu();
+    int InitButtons();
+    void InitMenu();
 
-	// Background
-	utils::RecursiveList<Config::SettingType> mBackGrounds;
-	// All buttons
-	components::ButtonPool mButtonPool;
-	// Cursor
-	components::Cursor mCursor;
-	// Objects for drawing effects
-	EffectsContainer mEffCont;
-	// Menu with switchers
-	components::Menu mMenu;
-	// Salute gun for shot rockets
-	weapons::SaluteGun mSaluteGun;
-	// Salute difficulty
-	utils::RecursiveList<Config::SettingType> mSaluteDifficulty;
-	// Salute types
-	utils::RecursiveList<Config::SettingType> mSaluteTypes;
+    // Background
+    utils::RecursiveList<Config::SettingType> mBackGrounds;
+    // All buttons
+    components::ButtonPool mButtonPool;
+    // Cursor
+    components::Cursor mCursor;
+    // Objects for drawing effects
+    EffectsContainer mEffCont;
+    // Menu with switchers
+    components::Menu mMenu;
+    // Salute gun for shot rockets
+    weapons::SaluteGun mSaluteGun;
+    // Salute difficulty
+    utils::RecursiveList<Config::SettingType> mSaluteDifficulty;
+    // Salute types
+    utils::RecursiveList<Config::SettingType> mSaluteTypes;
 
 };

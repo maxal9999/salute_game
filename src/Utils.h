@@ -12,21 +12,21 @@ namespace utils
 class RandomGenerator
 {
 public:
-	// Instance
-	static RandomGenerator& Instance();
+    // Instance
+    static RandomGenerator& Instance();
 
-	// Generating integers from min to max
-	int GetIntValue(int min, int max);
+    // Generating integers from min to max
+    int GetIntValue(int min, int max);
 
-	// Generating real numbers from min to max
-	float GetRealValue(int min, int max);
+    // Generating real numbers from min to max
+    float GetRealValue(int min, int max);
 private:
-	// Parameter for the distribution function
-	std::mt19937 mGen;
+    // Parameter for the distribution function
+    std::mt19937 mGen;
 
-	RandomGenerator();
-	RandomGenerator(const RandomGenerator&) = delete;
-	RandomGenerator& operator=(RandomGenerator&) = delete;
+    RandomGenerator();
+    RandomGenerator(const RandomGenerator&) = delete;
+    RandomGenerator& operator=(RandomGenerator&) = delete;
 };
 
 //------------------------------------------------------------------------------------
@@ -42,33 +42,33 @@ public:
     RecursiveList() = default;
     RecursiveList(const std::list<T>& list)
     {
-		InitList(list);
+        InitList(list);
     }
     
     void InitList(const std::list<T>& list)
     {
-		for(auto& element : list)
-			mElementList.emplace_back(element);
-		mElementListIt = mElementList.begin();
+        for(auto& element : list)
+            mElementList.emplace_back(element);
+        mElementListIt = mElementList.begin();
     }
     
     void Add(const T& element)
     {
-		mElementList.emplace_back(element);
+        mElementList.emplace_back(element);
     }
     
     void Next()
     {
-		++mElementListIt;
-		if (mElementListIt == mElementList.end())
-			mElementListIt = mElementList.begin();
+        ++mElementListIt;
+        if (mElementListIt == mElementList.end())
+            mElementListIt = mElementList.begin();
     }
     
     void Prev()
     {
-		if (mElementListIt == mElementList.begin())
-			mElementListIt = mElementList.end();
-		--mElementListIt;
+        if (mElementListIt == mElementList.begin())
+            mElementListIt = mElementList.end();
+        --mElementListIt;
     }
     
     T Value(){ return *mElementListIt; }
@@ -81,25 +81,25 @@ public:
 class CosSinCalc
 {
 public:
-	// Instance
-	static CosSinCalc& Instance();
+    // Instance
+    static CosSinCalc& Instance();
 
-	// Method to get cos of corner
-	float Cos(int angle);
-	// Method to get sin of corner
-	float Sin(int angle);
+    // Method to get cos of corner
+    float Cos(int angle);
+    // Method to get sin of corner
+    float Sin(int angle);
 private:
-	CosSinCalc();
-	CosSinCalc(const CosSinCalc&) = delete;
-	CosSinCalc& operator=(CosSinCalc&) = delete;
+    CosSinCalc();
+    CosSinCalc(const CosSinCalc&) = delete;
+    CosSinCalc& operator=(CosSinCalc&) = delete;
 
-	// Map for storing cosines
-	std::map<int, float> mCos;
+    // Map for storing cosines
+    std::map<int, float> mCos;
 
-	// Map for storing sines
-	std::map<int, float> mSin;
+    // Map for storing sines
+    std::map<int, float> mSin;
 
-	void CorrectAngle(int& angle);
+    void CorrectAngle(int& angle);
 };
 
 //------------------------------------------------------------------------------------

@@ -109,48 +109,48 @@ const std::string SALUTE_TYPE_FORTH_NAME = "Salute mixed";
 // Background types
 Config::SettingsType Config::Backgrounds()
 {
-	// Backgrounds type
-	auto first_groud = std::make_pair(BACKGROUND_FIRST, BACKGROUND_FIRST_NAME);
-	auto second_groud = std::make_pair(BACKGROUND_SECOND, BACKGROUND_SECOND_NAME);
-	auto third_groud = std::make_pair(BACKGROUND_THIRD, BACKGROUND_THIRD_NAME);
-	return { first_groud, second_groud, third_groud };
+    // Backgrounds type
+    auto first_groud = std::make_pair(BACKGROUND_FIRST, BACKGROUND_FIRST_NAME);
+    auto second_groud = std::make_pair(BACKGROUND_SECOND, BACKGROUND_SECOND_NAME);
+    auto third_groud = std::make_pair(BACKGROUND_THIRD, BACKGROUND_THIRD_NAME);
+    return { first_groud, second_groud, third_groud };
 }
 
 // Salute difficulty
 Config::SettingsType Config::Difficulty()
 {
-	auto first_level = std::make_pair(DIFFICULTY_FIRST, DIFFICULTY_FIRST_NAME);
-	auto second_level = std::make_pair(DIFFICULTY_SECOND, DIFFICULTY_SECOND_NAME);
-	auto third_level = std::make_pair(DIFFICULTY_THIRD, DIFFICULTY_THIRD_NAME);
-	auto forth_level = std::make_pair(DIFFICULTY_FORTH, DIFFICULTY_FORTH_NAME);
-	return { first_level, second_level, third_level, forth_level };
+    auto first_level = std::make_pair(DIFFICULTY_FIRST, DIFFICULTY_FIRST_NAME);
+    auto second_level = std::make_pair(DIFFICULTY_SECOND, DIFFICULTY_SECOND_NAME);
+    auto third_level = std::make_pair(DIFFICULTY_THIRD, DIFFICULTY_THIRD_NAME);
+    auto forth_level = std::make_pair(DIFFICULTY_FORTH, DIFFICULTY_FORTH_NAME);
+    return { first_level, second_level, third_level, forth_level };
 }
 
 // Salute types
 Config::SettingsType Config::SaluteTypes()
 {
-	auto first_type = std::make_pair(SALUTE_TYPE_FIRST, SALUTE_TYPE_FIRST_NAME);
-	auto second_type = std::make_pair(SALUTE_TYPE_SECOND, SALUTE_TYPE_SECOND_NAME);
-	auto third_type = std::make_pair(SALUTE_TYPE_THIRD, SALUTE_TYPE_THIRD_NAME);
-	auto forth_type = std::make_pair(SALUTE_TYPE_FORTH, SALUTE_TYPE_FORTH_NAME);
-	static auto types = { first_type, second_type, third_type, forth_type };
-	return types;
+    auto first_type = std::make_pair(SALUTE_TYPE_FIRST, SALUTE_TYPE_FIRST_NAME);
+    auto second_type = std::make_pair(SALUTE_TYPE_SECOND, SALUTE_TYPE_SECOND_NAME);
+    auto third_type = std::make_pair(SALUTE_TYPE_THIRD, SALUTE_TYPE_THIRD_NAME);
+    auto forth_type = std::make_pair(SALUTE_TYPE_FORTH, SALUTE_TYPE_FORTH_NAME);
+    static auto types = { first_type, second_type, third_type, forth_type };
+    return types;
 }
 
 int Config::SaluteCount()
 {
-	static int count = SaluteTypes().size() - 1;
-	return count;
+    static int count = SaluteTypes().size() - 1;
+    return count;
 }
 
 int Config::WinWidth()
 {
-	static auto x_screen = GetSystemMetrics(SM_CXSCREEN);
-	return x_screen;
+    static auto x_screen = GetSystemMetrics(SM_CXSCREEN);
+    return x_screen;
 }
 
 int Config::WinHeight()
 {
-	static auto y_screen = GetSystemMetrics(SM_CYSCREEN);
-	return y_screen;
+    static auto y_screen = GetSystemMetrics(SM_CYSCREEN);
+    return y_screen;
 }

@@ -6,8 +6,8 @@
 
 void SaluteDelegate::GameContentSize(int deviceWidth, int deviceHeight, int &width, int &height)
 {
-	width = Config::WinWidth();
-	height = Config::WinHeight();
+    width = Config::WinWidth();
+    height = Config::WinHeight();
 }
 
 void SaluteDelegate::ScreenMode(DeviceMode &mode)
