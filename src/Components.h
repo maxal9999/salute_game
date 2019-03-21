@@ -6,7 +6,6 @@
  * \author Maksimovskiy A.S.
  */
 
-#include <atomic>
 #include <functional>
 #include <list>
 #include <memory>
@@ -24,19 +23,20 @@ class Object
 public:
     Object(const std::string& tex_enable,
            const std::string& tex_disable);
+    virtual ~Object() = default;
     
     // Perform action
-    virtual void Action();
+    void Action();
     // Put object into active mode
-    virtual void ChangeEnable(bool activate);
+    void ChangeEnable(bool activate);
     // Put object into show mode
-    virtual void ChangeShow(bool show);
+    void ChangeShow(bool show);
     // Check that the mouse click was on the object
-    virtual bool CheckHitOnObject(int x, int y);
+    bool CheckHitOnObject(int x, int y);
     // Drawing object
     virtual void Draw() = 0;
     // Init action on this object
-    virtual void InitAction(std::function<void()> action);
+    void InitAction(std::function<void()> action);
     // Performing actions if the mouse down on an object
     virtual bool OnMouseDown(int x, int y) = 0;
     // Performing actions if the mouse up on an object
@@ -50,11 +50,11 @@ public:
     // Action of the button
     std::function<void()> mAction;
     // Active mode flag
-    std::atomic<bool> mEnable;
+    bool mEnable;
     // Object size
     utils::Rect mRect;
     // Show mode flag
-    std::atomic<bool> mShow;
+    bool mShow;
 };
 
 //-------------------------------------------------------------------------------------
@@ -63,6 +63,8 @@ struct Button : public Object
 {
     Button(const std::string& tex_enable,
            const std::string& tex_disable);
+
+    virtual ~Button() = default;
     
     void Draw() override;
     bool OnMouseDown(int x, int y) override;
@@ -87,6 +89,8 @@ struct Switcher : public Object
              const std::string& tex_disable,
              const std::shared_ptr<Object>& left,
              const std::shared_ptr<Object>& right);
+
+    virtual ~Switcher() = default;
     
     void Draw() override;
     bool OnMouseDown(int x, int y) override;
@@ -124,13 +128,14 @@ class ObjectPool
 {
 public:
     ObjectPool() = default;
+    ~ObjectPool() = default;
 
     // Performing actions if the mouse down on one of the objects
-    virtual bool CheckMouseDown(int x, int y);
+    bool CheckMouseDown(int x, int y);
     // Performing actions if the mouse up on one of the objects
-    virtual bool CheckMouseUp(int x, int y);
+    bool CheckMouseUp(int x, int y);
     // Drawing all objects
-    virtual void DrawAll();
+    void DrawAll();
 
     // List of the objects
     std::list<ObjectPtr> mObjectList;
@@ -142,6 +147,7 @@ class Menu : public ObjectPool
 {
 public:
     Menu(int x, int y);
+    ~Menu() = default;
 
     // Add new switch on the menu panel
     void AddSwitcher(const SwitcherPtr& switch_obj);
@@ -168,6 +174,7 @@ class ButtonPool : public ObjectPool
 {
 public:
     ButtonPool() = default;
+    ~ButtonPool() = default;
     
     // Add button in container
     void AddObject(const ObjectPtr& object);

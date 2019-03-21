@@ -43,6 +43,7 @@ struct RocketParams
 struct Rocket
 {
     Rocket(const RocketParams& params);
+    virtual ~Rocket() = default;
     
     // Calculation of the angle of rotation of the rocket and the initial coordinates
     void CalcAngles(float rotate_angle);
@@ -115,9 +116,6 @@ private:
     utils::Rect mRect;
     utils::Rect mInitRect;
 
-    // Salute gun shot effect
-    ParticleEffectPtr mShotEffect;
-
     // Rocket salute effect
     ParticleEffectPtr mSaluteEffect;
     std::string mSaluteEffectName;
@@ -128,6 +126,8 @@ private:
 struct RedRocket : public Rocket
 {
     RedRocket(const RocketParams& params);
+    virtual ~RedRocket() = default;
+
 private:
     void InitRocketParams();
 };
@@ -138,6 +138,7 @@ class SaluteGun
 {
 public:
     SaluteGun();
+    ~SaluteGun() = default;
     
     // Drawing weapons
     void Draw();
@@ -169,12 +170,15 @@ public:
 private:
     using RocketPtr = std::unique_ptr<Rocket>;
 
-    // Min and max X position for gun
-    int mMinX;
-    int mMaxX;
+    // Timer for delay shot by mouse and space click
+    Core::Timer mHandShotTimer;
 
     // The flag is responsible for the paused in the rocket moving.
     bool mIsPaused;
+
+    // Min and max X position for gun
+    int mMinX;
+    int mMaxX;
 
     // Previous time to calculate rocket flight
     float mPrevTime;
@@ -188,7 +192,7 @@ private:
     // Rocket salute effect name
     std::string mSaluteEffectName;
 
-    // Shot timer. The current gun shoots every 0.5 seconds.
+    // Shot timer
     Core::Timer mShotTimer;
 
     // Gun texture

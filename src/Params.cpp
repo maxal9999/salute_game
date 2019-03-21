@@ -47,6 +47,7 @@ const float ROCKET_MASS = 5.0f;
 // Salute gun params
 const std::string GUN_TEXTURE = "SaluteGun";
 const int GUN_VELOCITY = 30;
+const float HAND_SHOT_PERIOD = 0.5f;
 const float SHOT_PERIOD = 5.0f;
 
 // Component's textures

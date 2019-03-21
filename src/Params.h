@@ -52,6 +52,7 @@ extern const float ROCKET_MASS;
 // Salute gun params
 extern const std::string GUN_TEXTURE;
 extern const int GUN_VELOCITY;
+extern const float HAND_SHOT_PERIOD;
 extern const float SHOT_PERIOD;
 
 // Component's textures

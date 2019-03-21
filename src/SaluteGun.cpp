@@ -239,7 +239,6 @@ void Rocket::DrawEffects(EffectsContainer& eff_cont)
     
     if (mFlyEffect)
     {
-        //MM::manager.PlaySample("FlySound");
         mFlyEffect->posX = mRect.mX;
         mFlyEffect->posY = mRect.mY;
 
@@ -264,7 +263,7 @@ void Rocket::DrawEffects(EffectsContainer& eff_cont)
     if (!mSaluteEffect)
         return;
 
-    //MM::manager.PlaySample("SaluteSound");
+    MM::manager.PlaySample("SaluteSound");
     mSaluteEffect->posX = mRect.mX;
     mSaluteEffect->posY = mRect.mY;
     mSaluteEffect->Reset();
@@ -310,6 +309,8 @@ SaluteGun::SaluteGun()
 
     InitRockets(false);
     InitMinMaxPos(0, mWinWidth);
+    mShotTimer.Resume();
+    mHandShotTimer.Resume();
 }
 
 void SaluteGun::Draw()
@@ -379,7 +380,7 @@ void SaluteGun::RocketsDraw(EffectsContainer& eff_cont, const std::string& limit
     // But there was a problem with the effects container. 
     /*using Future = std::future<void>;
     std::vector<Future> task_list;
-    size_t idx = 0;*/
+    size_t idx = 0;
 
     auto rocket_draw_func = [](const RocketPtr& rocket, EffectsContainer& eff_cont)
     {
@@ -389,19 +390,19 @@ void SaluteGun::RocketsDraw(EffectsContainer& eff_cont, const std::string& limit
 
     for (auto& rocket : mRocketPool)
     {
-        rocket_draw_func(rocket, eff_cont);
-        /*if (idx == mRocketPool.size() - 1)
-            rocket_draw_func(rocket);
+        //rocket_draw_func(rocket, eff_cont);
+        if (idx == mRocketPool.size() - 1)
+            rocket_draw_func(rocket, eff_cont);
         else
         {
-            auto task = std::async(rocket_draw_func, std::ref(rocket));
+            auto task = std::async(rocket_draw_func, std::ref(rocket), std::ref(eff_cont));
             task_list.push_back(std::move(task));
         }
 
-        idx++;*/
+        idx++;
     }
 
-    /*std::for_each(task_list.begin(), task_list.end(), [](Future& task) {
+    std::for_each(task_list.begin(), task_list.end(), [](Future& task) {
         task.get();
     });*/
 
@@ -409,6 +410,9 @@ void SaluteGun::RocketsDraw(EffectsContainer& eff_cont, const std::string& limit
     std::list<RocketPtr> tmp_rocket_pool;
     for (auto& rocket : mRocketPool)
     {
+        rocket->Draw();
+        rocket->DrawEffects(eff_cont);
+
         auto new_rockets = rocket->CreateSubRockets(mSaluteEffectName, limit);
         for (auto& params : new_rockets)
             tmp_rocket_pool.push_back(std::make_unique<RedRocket>(params));
@@ -433,9 +437,10 @@ void SaluteGun::SetEffect(const std::string& effect_name)
 
 bool SaluteGun::MouseShot(int x, int y)
 {
-    if (mIsPaused)
+    if (mIsPaused || mHandShotTimer.getElapsedTime() < HAND_SHOT_PERIOD)
         return false;
 
+    mHandShotTimer.Resume();
     MM::manager.PlaySample("ShotSound");
     RocketParams main_params(x, y, PI_DEGREES / 2, 0, mSaluteEffectName);
     RocketPtr rocket = std::make_unique<RedRocket>(main_params);
@@ -443,15 +448,21 @@ bool SaluteGun::MouseShot(int x, int y)
     // Adjusting the initial position of the rocket
     rocket->mFirstDraw = true;
     mRocketPool.push_back(std::move(rocket));
+    mHandShotTimer.Start();
     return true;
 }
 
 bool SaluteGun::Shot(bool forced)
 {
-    if (mIsPaused || (!forced && mShotTimer.getElapsedTime() < SHOT_PERIOD))
+    if (mIsPaused)
+        return false;
+
+    if (forced && mHandShotTimer.getElapsedTime() < HAND_SHOT_PERIOD ||
+        !forced && mShotTimer.getElapsedTime() < SHOT_PERIOD)
         return false;
 
     MM::manager.PlaySample("ShotSound");
+    mHandShotTimer.Resume();
     mShotTimer.Resume();
     RocketParams main_params(mRect.mX + 2 * mRect.mWidth / 3, 
                              mRect.mHeight, PI_DEGREES / 2, 0, 
@@ -461,6 +472,7 @@ bool SaluteGun::Shot(bool forced)
     // Adjusting the initial position of the rocket
     rocket->mFirstDraw = true;
     mRocketPool.push_back(std::move(rocket));
+    mHandShotTimer.Start();
     mShotTimer.Start();
     return true;
 }

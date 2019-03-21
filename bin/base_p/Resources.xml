@@ -38,7 +38,6 @@
   </Textures>
   <Sounds group="SaluteGroup"> 
     <sample id="ShotSound" path="sound/shot_sound.ogg" mode="cache" mix="1" volumeFactor="1.0" pan="0"/>
-    <sample id="SaluteSound" path="sound/salute_sound.ogg" mode="cache" mix="1" volumeFactor="1.0" pan="0"/>
-    <sample id="FlySound" path="sound/fly_sound.ogg" mode="cache" mix="1" volumeFactor="1.0" pan="0"/>
+    <sample id="SaluteSound" path="sound/salute_sound.ogg" mode="cache" mix="20" volumeFactor="1.0" pan="0"/>
   </Sounds>
 </Resources>
