@@ -5,13 +5,13 @@
 This game is based on the engine of the "Playrix" company.
 
 ## Description
-The application is a salute shooter in which the salute gun fires rockets at intervals of 5 seconds. Every rocket flies a certain distance up, and then explodes in the form of a salute. Salute can also be launched by clicking the left mouse button on the background area.
+The application is a salute shooter in which the salute gun fires rockets at intervals of 5 seconds. Every rocket flies a certain distance up, and then explodes in the form of a salute. Player can forcefully shoot a salute gun by pressing the "Space" bar. Salute can also be launched by clicking the left mouse button on the background area.
 The salute gun can be moved to the bottom of the screen left and right using the "left" and "right" keys on the keyboard.
 
 The service buttons are located in the lower left corner of the screen: the pause/play button, the salute stop button, and the settings menu button.
 1. "Pause/play" button pauses or continues salute launch.
 2. "Stop" button interrupts all active salutes.
-3. "Settings" button shows or hides the menu bar.
+3. "Settings" button shows or hides the menu bar. The menu can also be shown by pressing the "Esc" button.
 
 There are 3 settings switches and 2 buttons on the menu panel
 1. "Background" switch allows player to change the background of the game. Available backgrounds: Sidney, New York, London.
