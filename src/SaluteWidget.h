@@ -23,8 +23,11 @@ public:
     void CharPressed(int unicodeChar) override;
 
 private:
+    // Base init
     void Init();
+    // Init all service buttons
     int InitButtons();
+    // Init menu panel
     void InitMenu();
 
     // Background

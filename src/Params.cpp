@@ -2,7 +2,7 @@
 
 /**
  * \file
- * \brief Implementation functions
+ * \brief File with const params
  * \author Maksimovskiy A.S.
  */
 

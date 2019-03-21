@@ -232,12 +232,6 @@ void Rocket::Draw()
     SimpleDraw();
 }
 
-namespace
-{
-    // Mutex for lock EffectsContainer;
-    static int AUDIO_IDX = 1;
-}
-
 void Rocket::DrawEffects(EffectsContainer& eff_cont)
 {
     if (!mFlyEffect)

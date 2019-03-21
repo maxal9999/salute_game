@@ -20,11 +20,16 @@ namespace weapons
 // Struct for create rocket by init params
 struct RocketParams
 {
+    // Position of the rocket
     int mX;
     int mY;
+    // Rotate angle
     float mRotateAngle;
+    // Level in a reaction chain
     int mLevel;
+    // Name of the salute effect
     std::string mSaluteEffectName;
+    // Main rocket flag
     bool mMainRocket;
 
     RocketParams(int x, int y, float angle, int level, 

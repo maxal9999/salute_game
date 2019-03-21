@@ -103,6 +103,7 @@ private:
 };
 
 //------------------------------------------------------------------------------------
+// Struct to describe size and position
 struct Rect
 {
     int mX;

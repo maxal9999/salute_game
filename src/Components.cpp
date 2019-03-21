@@ -1,3 +1,9 @@
+/**
+ * \file
+ * \brief Implementation of the all components
+ * \author Maksimovskiy A.S.
+ */
+
 #include "stdafx.h"
 
 #include "Components.h"
@@ -269,6 +275,7 @@ void Menu::AddSwitcher(const SwitcherPtr& switch_obj)
     switch_obj->mNameRect.mX = switch_obj->mRect.mX + switch_obj->mRect.mWidth / 2;
     switch_obj->mNameRect.mY = switch_obj->mRect.mY + switch_obj->mRect.mHeight / 2;
 
+    // Init position of the left button
     auto& left = switch_obj->mLeftButton;
     if (left)
     {
@@ -276,8 +283,9 @@ void Menu::AddSwitcher(const SwitcherPtr& switch_obj)
         left->mRect.mY = switch_y + left->mRect.mHeight / 2;
     }
 
+    // Init position of the right button
     auto& right = switch_obj->mRightButton;
-    if (left)
+    if (right)
     {
         right->mRect.mX = switch_x + switch_obj->mRect.mWidth - 1.5 * right->mRect.mWidth;
         right->mRect.mY = switch_y + right->mRect.mHeight / 2;
