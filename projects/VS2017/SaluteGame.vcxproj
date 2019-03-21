@@ -120,7 +120,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\Components.cpp" />
     <ClCompile Include="..\..\src\Main.cpp" />
-    <ClCompile Include="..\..\src\ClassHelpers.cpp" />
     <ClCompile Include="..\..\src\Params.cpp" />
     <ClCompile Include="..\..\src\SaluteDelegate.cpp" />
     <ClCompile Include="..\..\src\SaluteWidget.cpp" />
@@ -133,7 +132,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\Components.h" />
-    <ClInclude Include="..\..\src\ClassHelpers.h" />
     <ClInclude Include="..\..\src\Params.h" />
     <ClInclude Include="..\..\src\SaluteDelegate.h" />
     <ClInclude Include="..\..\src\SaluteWidget.h" />

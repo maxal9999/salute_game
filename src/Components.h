@@ -87,12 +87,6 @@ using SwitcherPtr = std::shared_ptr<Switcher>;
 SwitcherPtr NewSwitcher(const std::string& name, 
 	                    const std::shared_ptr<Object>& left = nullptr,
 	                    const std::shared_ptr<Object>& right = nullptr);
-SwitcherPtr NewSwitcher1(const std::string& name,
-	const std::shared_ptr<Object>& left = nullptr,
-	const std::shared_ptr<Object>& right = nullptr);
-SwitcherPtr NewSwitcher2(const std::string& name,
-	const std::shared_ptr<Object>& left = nullptr,
-	const std::shared_ptr<Object>& right = nullptr);
 
 //-------------------------------------------------------------------------------------
 
@@ -104,8 +98,8 @@ class ObjectPool
 public:
 	ObjectPool() = default;
 
-	virtual void CheckMouseDown(int x, int y);
-	virtual void CheckMouseUp(int x, int y);
+	virtual bool CheckMouseDown(int x, int y);
+	virtual bool CheckMouseUp(int x, int y);
 	virtual void DrawAll();
 
 	std::list<ObjectPtr> mObjectList;
@@ -140,6 +134,20 @@ public:
     
     void AddObject(const ObjectPtr& object);
 	void AddObjects(std::initializer_list<ObjectPtr> objects);
+};
+
+//-------------------------------------------------------------------------------------
+// Class to draw cursor.
+struct Cursor
+{
+	void Action(int x, int y);
+
+	void Draw();
+
+	void InitAction(std::function<void(int, int)> action);
+
+private:
+	std::function<void(int, int)> mAction;
 };
 
 }

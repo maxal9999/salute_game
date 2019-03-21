@@ -9,8 +9,9 @@
 #include "SaluteGun.h"
 
 #include <corecrt_math_defines.h>
+#include <mutex>
 
-#include "ClassHelpers.h"
+#include "Utils.h"
 
 
 namespace weapons
@@ -19,38 +20,44 @@ namespace weapons
  // Time discrete
 static float TIME_DELTA = 0.1f;
 
-RocketParams::RocketParams(int x, int y, float angle, float distance, int level)
-   : mX(x), mY(y), mRotateAngle(angle), mDistance(distance), mLevel(level)
+RocketParams::RocketParams(int x, int y, float angle, int level,
+                           const std::string& effect_name,
+                           bool is_main)
+    : mX(x), mY(y), mRotateAngle(angle), mLevel(level), 
+    mSaluteEffectName(effect_name), mMainRocket(is_main)
 {
 }
 
 //------------------------------------------------------------------------------------
 // Rocket
-Rocket::Rocket()
-	: mDistance(25),
-	mFirstDraw(false),
-	mIsPaused(false),
-	mIsUsed(false),
-	mLevel(0),
-	mMainRocket(true),
-	mSystemAngle(0.0f)
-{
-}
 
 Rocket::Rocket(const RocketParams& params)
-	: mDistance(params.mDistance),
-	mFirstDraw(false),
-	mIsPaused(false),
-	mIsUsed(false),
-	mLevel(params.mLevel),
-	mMainRocket(false),
-	mSystemAngle(0.0f)
+   : mFirstDraw(false),
+    mIsPaused(false),
+    mIsUsed(false),
+    mMainRocket(params.mMainRocket),
+    mDeltaX(0.0f),
+    mDeltaY(0.0f),
+    mLevel(params.mLevel),
+    mSaluteEffectName(params.mSaluteEffectName)
 {
+    auto& inst = utils::RandomGenerator::Instance();
+    if (mMainRocket)
+        mDistance = inst.GetRealValue(MAIN_MIN_DISTANCE, MAIN_MAX_DISTANCE);
+    else
+        mDistance = inst.GetRealValue(MIN_DISTANCE, MAX_DISTANCE);
     mRect.mX = params.mX;
     mRect.mY = params.mY;
     mInitRect.mX = params.mX;
     mInitRect.mY = params.mY;
     CalcAngles(params.mRotateAngle);
+
+    // Init salute name if mix type
+    if (mSaluteEffectName == SALUTE_TYPE_FORTH)
+    {
+        int type_id = inst.GetIntValue(1, Config::SaluteCount());
+        mSaluteEffectName = SALUTE_EFFECT + std::to_string(type_id);
+    }
 }
 
 float* Rocket::RKFunc(float* xy_old)
@@ -72,30 +79,30 @@ void Rocket::CalcAngles(float rotate_angle)
     float ang = rotate_angle * M_PI / PI_DEGREES;
 
     // Initial position, initial speed, shot angle
+    int v = !mLevel ? ROCKET_VELOCITY : ROCKET_VELOCITY / 2;
     // x0
     mXYold[0] = mRect.mX;
     // vx0
-    mXYold[1] = ROCKET_VELOCITY * cos(ang);
+    mXYold[1] = v * cos(ang);
     // y0
     mXYold[2] = mRect.mY;
     // vy0
-    mXYold[3] = ROCKET_VELOCITY * sin(ang);
-    // Shot angle
-    mSystemAngle = rotate_angle;
+    mXYold[3] = v * sin(ang);
+}
+
+bool Rocket::Clear()
+{
+    if (!mIsUsed)
+        return false;
+
+    mFlyEffect = nullptr;
+    mSaluteEffect = nullptr;
+    mTexture = nullptr;
+    return true;
 }
 
 void Rocket::CheckRocketOnUsed()
 {
-	if (mMainRocket)
-	{
-		if (mXYold[1] > 0 || mXYold[3] > 0)
-			return;
-
-		mInitRect.mX = mXYold[0];
-		mInitRect.mY = mXYold[2];
-		mMainRocket = false;
-	}
-
     int curr_x = mRect.mX;
     int init_x = mInitRect.mX;
     int curr_y = mRect.mY;
@@ -105,20 +112,24 @@ void Rocket::CheckRocketOnUsed()
     mIsUsed = distance >= mDistance;
 }
 
-std::list<RocketParams> Rocket::CreateSubRockets(int level_limit)
+std::list<RocketParams> Rocket::CreateSubRockets(const std::string& salute_type, int level_limit)
 {
     if (!mIsUsed)
-       return {};
+        return {};
 
     int new_level = ++mLevel;
-	if (new_level > level_limit)
-		return {};
+    if (new_level > level_limit)
+        return {};
 
-	auto angle = acos(mXYold[3] / sqrt(mXYold[3] * mXYold[3] + mXYold[1] * mXYold[1]));
-	float real_angle = mSystemAngle + angle * PI_DEGREES / M_PI;
-    return { RocketParams{mRect.mX, mRect.mY, real_angle, 245, new_level},
-             RocketParams{mRect.mX, mRect.mY, real_angle + 45, 245, new_level},
-             RocketParams{mRect.mX, mRect.mY, real_angle - 45, 245, new_level} };
+    auto angle = acos(mXYold[3] / sqrt(mXYold[3] * mXYold[3] + mXYold[1] * mXYold[1]));
+    float real_angle = angle * PI_DEGREES / M_PI;
+    auto& inst = utils::RandomGenerator::Instance();
+    int invert = inst.GetIntValue(0, 1) ? 1 : -1;
+    real_angle = invert * real_angle;
+    auto random_angle = inst.GetRealValue(MIN_DELTA_ANGLE, MAX_DELTA_ANGLE);
+    return { RocketParams{mRect.mX, mRect.mY, real_angle, new_level, salute_type},
+             RocketParams{mRect.mX, mRect.mY, real_angle + random_angle, new_level, salute_type},
+             RocketParams{mRect.mX, mRect.mY, real_angle - random_angle, new_level, salute_type} };
 }
 
 void Rocket::Move()
@@ -151,8 +162,8 @@ void Rocket::Move()
     * current x and y coordinates and velocity projections vx and vy
     */
 
-	if (mIsPaused)
-		return;
+    if (mIsPaused)
+        return;
 
     // If the rocket did not hit one target,
     // it is considered used when it hits the ground.
@@ -189,7 +200,7 @@ void Rocket::Move()
         y_new[i] = mXYold[i] + TIME_DELTA * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]) / 6.0;
 
     mRect.mX = y_new[0];
-	mRect.mY = y_new[2];
+    mRect.mY = y_new[2];
     for (int i = 0; i < N_DIM; i++)
         mXYold[i] = y_new[i];
 
@@ -201,13 +212,13 @@ void Rocket::Move()
 
 void Rocket::SimpleDraw()
 {
-	if (mIsUsed)
-		return;
+    if (mIsUsed || !mMainRocket)
+        return;
 
-	Render::device.PushMatrix();
-    Render::device.MatrixTranslate(mRect.mX, mRect.mY, 0);
     auto angle = acos(mXYold[3] / sqrt(mXYold[3] * mXYold[3] + mXYold[1] * mXYold[1]));
-    float real_angle = mSystemAngle + angle * PI_DEGREES / M_PI;
+    float real_angle = angle * PI_DEGREES / M_PI;
+    Render::device.PushMatrix();
+    Render::device.MatrixTranslate(mRect.mX - mDeltaX, mRect.mY + mDeltaY, 0);
     Render::device.MatrixRotate(math::Vector3(0, 0, 1), real_angle);
     mTexture->Draw();
     Render::device.PopMatrix();
@@ -217,8 +228,14 @@ void Rocket::Draw()
 {
     // Move the rocket on the current iteration
     Move();
-	CheckRocketOnUsed();
+    CheckRocketOnUsed();
     SimpleDraw();
+}
+
+namespace
+{
+    // Mutex for lock EffectsContainer;
+    static int AUDIO_IDX = 1;
 }
 
 void Rocket::DrawEffects(EffectsContainer& eff_cont)
@@ -228,6 +245,7 @@ void Rocket::DrawEffects(EffectsContainer& eff_cont)
     
     if (mFlyEffect)
     {
+        //MM::manager.PlaySample("FlySound");
         mFlyEffect->posX = mRect.mX;
         mFlyEffect->posY = mRect.mY;
 
@@ -248,63 +266,56 @@ void Rocket::DrawEffects(EffectsContainer& eff_cont)
         return;
 
     if (!mSaluteEffect)
-		mSaluteEffect = eff_cont.AddEffect(SALUTE_EFFECT);
+        mSaluteEffect = eff_cont.AddEffect(mSaluteEffectName);
     if (!mSaluteEffect)
         return;
 
-	mSaluteEffect->posX = mRect.mX;
-	mSaluteEffect->posY = mRect.mY;
-	mSaluteEffect->Reset();
+    //MM::manager.PlaySample("SaluteSound");
+    mSaluteEffect->posX = mRect.mX;
+    mSaluteEffect->posY = mRect.mY;
+    mSaluteEffect->Reset();
 }
 
 //------------------------------------------------------------------------------------
 // RedRocket
-RedRocket::RedRocket() : Rocket()
-{
-	InitRocketParams();
-}
 
 RedRocket::RedRocket(const RocketParams& params)
-	: Rocket(params)
+    : Rocket(params)
 {
-	InitRocketParams();
+    InitRocketParams();
 }
 
 void RedRocket::InitRocketParams()
 {
-	mTexture = object_params::GetText(ROCKET_TEXTURE);
-	float dx, dy;
-	object_params::InitSize(mTexture, dx, dy);
+    mTexture = utils::GetTexture(ROCKET_TEXTURE);
+    utils::InitSize(mTexture, mDeltaX, mDeltaY);
 
-	mRect.mX -= dx;
-	mRect.mY -= dy;
+    // Convert to rad/s
+    float w = ROCKET_RPM * M_PI / 30.00;
+    // Drag coefficient
+    float CD = 0.30 + 2.58e-4 * w;
+    mCm = 0.5 * CD * ROCKET_S * RHO / ROCKET_MASS;
 
-	// Convert to rad/s
-	float w = ROCKET_RPM * M_PI / 30.00;
-	// Drag coefficient
-	float CD = 0.30 + 2.58e-4 * w;
-	mCm = 0.5 * CD * ROCKET_S * RHO / ROCKET_MASS;
-
-	// Swift factor
-	float CL = 0.3187 * (1.0 - exp(-2.483e-3 * w));
-	mKm = 0.5 * CL * ROCKET_S * RHO / ROCKET_MASS;
+    // Swift factor
+    float CL = 0.3187 * (1.0 - exp(-2.483e-3 * w));
+    mKm = 0.5 * CL * ROCKET_S * RHO / ROCKET_MASS;
 }
 
 //------------------------------------------------------------------------------------
 // SaluteGun
 SaluteGun::SaluteGun()
-	: mIsPaused(false)
+    : mIsPaused(false)
 {
-    mTexture = object_params::GetText(GUN_TEXTURE);
+    mTexture = utils::GetTexture(GUN_TEXTURE);
     IRect gun_rect = mTexture->getBitmapRect();
     mRect.mWidth = gun_rect.width;
     mRect.mHeight = gun_rect.height;
 
     mWinWidth = Config::WinWidth();
-    mRect.mX = static_cast<float>(mWinWidth / 2);
+    mRect.mX = mWinWidth / 2 - mRect.mWidth / 2;
 
     InitRockets(false);
-	InitMinMaxPos(0, mWinWidth);
+    InitMinMaxPos(0, mWinWidth);
 }
 
 void SaluteGun::Draw()
@@ -342,7 +353,7 @@ void SaluteGun::InitRockets(bool restart)
 void SaluteGun::InitMinMaxPos(int min, int max)
 {
     mMinX = min;
-    mMaxX = max;
+    mMaxX = max - mRect.mWidth;
 }
 
 void SaluteGun::Move(bool is_left)
@@ -359,9 +370,9 @@ void SaluteGun::Move(bool is_left)
 
 void SaluteGun::OnPausedMoving(bool pause)
 {
-	mIsPaused = pause;
-	for (auto& rocket : mRocketPool)
-		rocket->mIsPaused = pause;
+    mIsPaused = pause;
+    for (auto& rocket : mRocketPool)
+        rocket->mIsPaused = pause;
 }
 
 void SaluteGun::RocketsDraw(EffectsContainer& eff_cont, const std::string& limit_str)
@@ -370,27 +381,48 @@ void SaluteGun::RocketsDraw(EffectsContainer& eff_cont, const std::string& limit
     TIME_DELTA = (curr_time - mPrevTime) * 10;
     mPrevTime = curr_time;
 
-    std::list<RocketPtr> tmp_rocket_pool;
-    for (auto& rocket : mRocketPool)
+    // TODO To acceleration it is necessary to draw salutes in different threads.
+    // But there was a problem with the effects container. 
+    /*using Future = std::future<void>;
+    std::vector<Future> task_list;
+    size_t idx = 0;*/
+
+    auto rocket_draw_func = [](const RocketPtr& rocket, EffectsContainer& eff_cont)
     {
         rocket->Draw();
         rocket->DrawEffects(eff_cont);
+    };
 
-        auto new_rockets = rocket->CreateSubRockets(utils::lexical_cast<int>(limit_str));
+    for (auto& rocket : mRocketPool)
+    {
+        rocket_draw_func(rocket, eff_cont);
+        /*if (idx == mRocketPool.size() - 1)
+            rocket_draw_func(rocket);
+        else
+        {
+            auto task = std::async(rocket_draw_func, std::ref(rocket));
+            task_list.push_back(std::move(task));
+        }
+
+        idx++;*/
+    }
+
+    /*std::for_each(task_list.begin(), task_list.end(), [](Future& task) {
+        task.get();
+    });*/
+
+    int limit = utils::lexical_cast<int>(limit_str);
+    std::list<RocketPtr> tmp_rocket_pool;
+    for (auto& rocket : mRocketPool)
+    {
+        auto new_rockets = rocket->CreateSubRockets(mSaluteEffectName, limit);
         for (auto& params : new_rockets)
             tmp_rocket_pool.push_back(std::make_unique<RedRocket>(params));
     }
 
     auto delete_func = [](RocketPtr& b_object) -> bool
     {
-        bool is_used = b_object->mIsUsed;
-        if (!is_used)
-            return false;
-
-        b_object->mFlyEffect = nullptr;
-        b_object->mSaluteEffect = nullptr;
-        b_object->mTexture = nullptr;
-        return true;
+        return b_object->Clear();
     };
 
     mRocketPool.remove_if(delete_func);
@@ -399,20 +431,41 @@ void SaluteGun::RocketsDraw(EffectsContainer& eff_cont, const std::string& limit
         mRocketPool.splice(mRocketPool.end(), tmp_rocket_pool);
 }
 
-bool SaluteGun::Shot()
+// Set an effect of the rockets
+void SaluteGun::SetEffect(const std::string& effect_name)
 {
-    if (mIsPaused || mShotTimer.getElapsedTime() < 0.0f)
+    mSaluteEffectName = effect_name;
+}
+
+bool SaluteGun::MouseShot(int x, int y)
+{
+    if (mIsPaused)
         return false;
 
-    //MM::manager.PlaySample("ShotSound");
-    mShotTimer.Resume();
-	RocketPtr rocket = std::make_unique<RedRocket>();
+    MM::manager.PlaySample("ShotSound");
+    RocketParams main_params(x, y, PI_DEGREES / 2, 0, mSaluteEffectName);
+    RocketPtr rocket = std::make_unique<RedRocket>(main_params);
 
     // Adjusting the initial position of the rocket
-    rocket->mRect.mX = mRect.mX;
-    rocket->mRect.mY = mRect.mHeight;
     rocket->mFirstDraw = true;
-	rocket->CalcAngles(PI_DEGREES / 2);
+    mRocketPool.push_back(std::move(rocket));
+    return true;
+}
+
+bool SaluteGun::Shot(bool forced)
+{
+    if (mIsPaused || (!forced && mShotTimer.getElapsedTime() < SHOT_PERIOD))
+        return false;
+
+    MM::manager.PlaySample("ShotSound");
+    mShotTimer.Resume();
+    RocketParams main_params(mRect.mX + 2 * mRect.mWidth / 3, 
+                             mRect.mHeight, PI_DEGREES / 2, 0, 
+                             mSaluteEffectName, true);
+    RocketPtr rocket = std::make_unique<RedRocket>(main_params);
+
+    // Adjusting the initial position of the rocket
+    rocket->mFirstDraw = true;
     mRocketPool.push_back(std::move(rocket));
     mShotTimer.Start();
     return true;

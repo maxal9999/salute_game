@@ -2,7 +2,7 @@
 
 #include <windows.h>
 
-#include "ClassHelpers.h"
+#include "Utils.h"
 #include "Params.h"
 #include "SaluteWidget.h"
 
@@ -19,28 +19,31 @@ SaluteWidget::SaluteWidget(const std::string& name, rapidxml::xml_node<>* elem)
 void SaluteWidget::Init()
 {
 	// Init backgrounds type
-	auto first_groud = std::make_pair("Background1", "Sidney");
-	auto second_groud = std::make_pair("Background2", "New York");
-	auto third_groud = std::make_pair("Background3", "London");
-	mBackGrounds.InitList({ first_groud, second_groud, third_groud });
-
+	mBackGrounds.InitList(Config::Backgrounds());
 	// Init difficulty level
-	auto first_level = std::make_pair("0", "Simple");
-	auto second_level = std::make_pair("1", "Middle");
-	auto third_level = std::make_pair("2", "Hard");
-	auto forth_level = std::make_pair("3", "Apocalypse");
-	mSaluteDifficulty.InitList({ first_level, second_level, third_level, forth_level });
-	
-	InitButtons();
+	mSaluteDifficulty.InitList(Config::Difficulty());
+	// Init salute types
+	mSaluteTypes.InitList(Config::SaluteTypes());
+	mSaluteGun.SetEffect(mSaluteTypes.Value().first);
+	// Init all buttons
+	int x_pos = InitButtons();
+	mSaluteGun.InitMinMaxPos(x_pos, Config::WinWidth());
+	// Init menu with switchers
 	InitMenu();
 
-    mTimer.Start();
+	// Init action for mouse cursor
+	auto salute_gun_ptr = &mSaluteGun;
+	mCursor.InitAction([salute_gun_ptr](int x, int y)
+	{
+		salute_gun_ptr->MouseShot(x, y);
+	});
+
 #if defined(ENGINE_TARGET_WIN32)
-    //ShowCursor(FALSE);
+    ShowCursor(FALSE);
 #endif
 }
 
-void SaluteWidget::InitButtons()
+int SaluteWidget::InitButtons()
 {
 	int x_pos = BUTTON_DELTA_POS;
 
@@ -83,8 +86,10 @@ void SaluteWidget::InitButtons()
 	{
 		menu_ptr->Show(!menu_ptr->IsActivate);
 	});
+	x_pos += set_button->mRect.mWidth + BUTTON_DELTA_POS;
 
 	mButtonPool.AddObjects({ play_button, pause_button, stop_button, set_button });
+	return x_pos;
 }
 
 void SaluteWidget::InitMenu()
@@ -93,7 +98,7 @@ void SaluteWidget::InitMenu()
 	auto ground_left = components::LeftButton(0, 0);
 	auto ground_ptr = &mBackGrounds;
 	auto ground_right = components::RightButton(0, 0);
-	auto ground_switcher = components::NewSwitcher("Background", ground_left, ground_right);
+	auto ground_switcher = components::NewSwitcher(BACKGROUND_SWITCHER, ground_left, ground_right);
 	ground_switcher->SetSettingName(mBackGrounds.Value().second);
 	ground_left->InitAction([ground_switcher, ground_ptr]()
 	{
@@ -110,7 +115,7 @@ void SaluteWidget::InitMenu()
 	auto mode_left = components::LeftButton(0, 0);
 	auto mode_ptr = &mSaluteDifficulty;
 	auto mode_right = components::RightButton(0, 0);
-	auto mode_switcher = components::NewSwitcher("Difficulty", mode_left, mode_right);
+	auto mode_switcher = components::NewSwitcher(DIFFICULTY_SWITCHER, mode_left, mode_right);
 	mode_switcher->SetSettingName(mSaluteDifficulty.Value().second);
 	mode_left->InitAction([mode_switcher, mode_ptr]()
 	{
@@ -123,27 +128,42 @@ void SaluteWidget::InitMenu()
 		mode_switcher->SetSettingName(mode_ptr->Value().second);
 	});
 	
-	// Change color of the salute
-	auto color_left = components::LeftButton(0, 0);
-	auto color_right = components::RightButton(0, 0);
-	auto color_switcher = components::NewSwitcher("Color", color_left, color_right);
+	// Change type of the salute
+	auto type_left = components::LeftButton(0, 0);
+	auto type_right = components::RightButton(0, 0);
+	auto type_ptr = &mSaluteTypes;
+	auto salute_gun_ptr = &mSaluteGun;
+	auto type_switcher = components::NewSwitcher(TYPE_SWITCHER, type_left, type_right);
+	type_switcher->SetSettingName(mSaluteTypes.Value().second);
+	type_left->InitAction([type_switcher, type_ptr, salute_gun_ptr]()
+	{
+		type_ptr->Prev();
+		type_switcher->SetSettingName(type_ptr->Value().second);
+		salute_gun_ptr->SetEffect(type_ptr->Value().first);
+	});
+	type_right->InitAction([type_switcher, type_ptr, salute_gun_ptr]()
+	{
+		type_ptr->Next();
+		type_switcher->SetSettingName(type_ptr->Value().second);
+		salute_gun_ptr->SetEffect(type_ptr->Value().first);
+	});
 
 	// Continue switcher
 	auto menu_ptr = &mMenu;
-	auto continue_switcher = components::NewSwitcher("Continue");
+	auto continue_switcher = components::NewSwitcher(CONTINUE_SWITCHER);
 	continue_switcher->InitAction([menu_ptr]()
 	{
 		menu_ptr->Show(false);
 	});
 
 	// Exit switcher
-	auto exit_switcher = components::NewSwitcher("Exit");
+	auto exit_switcher = components::NewSwitcher(EXIT_SWITCHER);
 	exit_switcher->InitAction([]()
 	{
-		exit(0);
+		::TerminateProcess(::GetCurrentProcess(), 0);
 	});
 
-	mMenu.AddSwitchers({ ground_switcher, mode_switcher, color_switcher, continue_switcher, exit_switcher });
+	mMenu.AddSwitchers({ ground_switcher, mode_switcher, type_switcher, continue_switcher, exit_switcher });
 }
 
 void SaluteWidget::Draw()
@@ -153,40 +173,46 @@ void SaluteWidget::Draw()
 	// Draw all buttons
 	mButtonPool.DrawAll();
 	// Draw salute and rockets
+	mSaluteGun.Shot();
 	mSaluteGun.Draw();
 	mSaluteGun.RocketsDraw(mEffCont, mSaluteDifficulty.Value().first);
     // Draw all the effects that are added to the container
     mEffCont.Draw();
 	// Draw menu with switchers
 	mMenu.DrawAll();
+	// Draw cursor over all objects
+	mCursor.Draw();
 }
 
 void SaluteWidget::Update(float dt)
 {
+	mCursor.Draw();
     mEffCont.Update(dt);
 }
 
-bool SaluteWidget::MouseDown(const IPoint &mouse_pos)
+bool SaluteWidget::MouseDown(const IPoint& mouse_pos)
 {
-	mButtonPool.CheckMouseDown(mouse_pos.x, mouse_pos.y);
-	mMenu.CheckMouseDown(mouse_pos.x, mouse_pos.y);
-    if (Core::mainInput.GetMouseRightButton())
-    {
-    }
-    else
-    {
-    }
+	if (mButtonPool.CheckMouseDown(mouse_pos.x, mouse_pos.y))
+		return false;
+
+	if (mMenu.CheckMouseDown(mouse_pos.x, mouse_pos.y))
+		return false;
+
+	mCursor.Action(mouse_pos.x, mouse_pos.y);
     return false;
 }
 
-void SaluteWidget::MouseMove(const IPoint &mouse_pos)
+void SaluteWidget::MouseMove(const IPoint& mouse_pos)
 {
 }
 
 void SaluteWidget::MouseUp(const IPoint &mouse_pos)
 {
-	mButtonPool.CheckMouseUp(mouse_pos.x, mouse_pos.y);
-	mMenu.CheckMouseUp(mouse_pos.x, mouse_pos.y);
+	if (mButtonPool.CheckMouseUp(mouse_pos.x, mouse_pos.y))
+		return;
+
+	if (mMenu.CheckMouseUp(mouse_pos.x, mouse_pos.y))
+		return;
 }
 
 void SaluteWidget::AcceptMessage(const Message& message)
@@ -204,7 +230,10 @@ void SaluteWidget::KeyPressed(int keyCode)
 		mSaluteGun.Move(false);
 		break;
 	case VK_SPACE:
-		mSaluteGun.Shot();
+		mSaluteGun.Shot(true);
+		break;
+	case VK_ESCAPE:
+		mMenu.Show(true);
 		break;
 	}
 }

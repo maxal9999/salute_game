@@ -24,14 +24,15 @@ public:
 
 private:
     void Init();
-	void InitButtons();
+	int InitButtons();
 	void InitMenu();
 
 	// Background
-	using SettingName = std::pair<std::string, std::string>;
-	utils::RecursiveList<SettingName> mBackGrounds;
+	utils::RecursiveList<Config::SettingType> mBackGrounds;
 	// All buttons
 	components::ButtonPool mButtonPool;
+	// Cursor
+	components::Cursor mCursor;
 	// Objects for drawing effects
 	EffectsContainer mEffCont;
 	// Menu with switchers
@@ -39,8 +40,8 @@ private:
 	// Salute gun for shot rockets
 	weapons::SaluteGun mSaluteGun;
 	// Salute difficulty
-	utils::RecursiveList<SettingName> mSaluteDifficulty;
-    // Timer
-    Core::Timer mTimer;
+	utils::RecursiveList<Config::SettingType> mSaluteDifficulty;
+	// Salute types
+	utils::RecursiveList<Config::SettingType> mSaluteTypes;
 
 };

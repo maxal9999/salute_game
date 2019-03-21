@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "Components.h"
+#include "Utils.h"
 #include "Params.h"
 
 
@@ -13,8 +14,8 @@ namespace components
 Object::Object(const std::string& tex_enable, const std::string& tex_disable)
    : mEnable(false), mShow(true)
 {
-    mEnableTexture = Core::resourceManager.Get<Render::Texture>(tex_enable);
-    mDisableTexture = Core::resourceManager.Get<Render::Texture>(tex_disable);
+    mEnableTexture = utils::GetTexture(tex_enable);
+    mDisableTexture = utils::GetTexture(tex_disable);
     auto rect = mEnableTexture->getBitmapRect();
     mRect.mHeight = rect.height;
     mRect.mWidth = rect.width;
@@ -112,32 +113,32 @@ std::shared_ptr<Object> CreateButton(const std::string& tex_enable,
 
 std::shared_ptr<Object> PlayButton(int x, int y)
 {
-	return CreateButton("PlayEnable", "PlayDisable", x, y);
+	return CreateButton(PLAY_ENABLE_TEXTURE, PLAY_DISABLE_TEXTURE, x, y);
 }
 
 std::shared_ptr<Object> PauseButton(int x, int y)
 {
-	return CreateButton("PauseEnable", "PauseDisable", x, y);
+	return CreateButton(PAUSE_ENABLE_TEXTURE, PAUSE_DISABLE_TEXTURE, x, y);
 }
 
 std::shared_ptr<Object> StopButton(int x, int y)
 {
-	return CreateButton("StopEnable", "StopDisable", x, y);
+	return CreateButton(STOP_ENABLE_TEXTURE, STOP_DISABLE_TEXTURE, x, y);
 }
 
 std::shared_ptr<Object> SettingsButton(int x, int y)
 {
-	return CreateButton("SettingsEnable", "SettingsDisable", x, y);
+	return CreateButton(SETTING_ENABLE_TEXTURE, SETTING_DISABLE_TEXTURE, x, y);
 }
 
 std::shared_ptr<Object> LeftButton(int x, int y)
 {
-	return CreateButton("LeftEnable", "LeftDisable", x, y);
+	return CreateButton(LEFT_ENABLE_TEXTURE, LEFT_DISABLE_TEXTURE, x, y);
 }
 
 std::shared_ptr<Object> RightButton(int x, int y)
 {
-	return CreateButton("RightEnable", "RightDisable", x, y);
+	return CreateButton(RIGHT_ENABLE_TEXTURE, RIGHT_DISABLE_TEXTURE, x, y);
 }
 
 //------------------------------------------------------------------------------------
@@ -204,23 +205,27 @@ SwitcherPtr NewSwitcher(const std::string& name,
 	                    const std::shared_ptr<Object>& left,
 	                    const std::shared_ptr<Object>& right)
 {
-	return std::make_shared<Switcher>(name, "SwitcherEnable", "SwitcherDisable", left, right);
+	return std::make_shared<Switcher>(name, SWITCHER_ENABLE_TEXTURE, SWITCHER_DISABLE_TEXTURE, left, right);
 }
 
 //-------------------------------------------------------------------------------------
 // ObjectPool
-void ObjectPool::CheckMouseDown(int x, int y)
+bool ObjectPool::CheckMouseDown(int x, int y)
 {
 	for (auto& object : mObjectList)
 		if (object->OnMouseDown(x, y))
-			return;
+			return true;
+
+	return false;
 }
 
-void ObjectPool::CheckMouseUp(int x, int y)
+bool ObjectPool::CheckMouseUp(int x, int y)
 {
 	for (auto& object : mObjectList)
 		if (object->OnMouseUp(x, y))
-			return;
+			return true;
+
+	return false;
 }
 
 void ObjectPool::DrawAll()
@@ -304,6 +309,32 @@ void ButtonPool::AddObjects(std::initializer_list<ObjectPtr> objects)
 {
 	for (auto& object : objects)
 		AddObject(object);
+}
+
+//-------------------------------------------------------------------------------------
+// Cursor
+
+void Cursor::Draw()
+{
+	static auto CURSOR = utils::GetTexture(CURSOR_TEXTURE);
+
+	// Current position of the mouse. The cursor is attached to the mouse cursor.
+	auto mouse_pos = Core::mainInput.GetMousePos();
+	static IRect CURSOR_RECT = CURSOR->getBitmapRect();
+	Render::device.PushMatrix();
+	Render::device.MatrixTranslate(mouse_pos.x, mouse_pos.y - CURSOR_RECT.height, 0.0f);
+	CURSOR->Draw();
+	Render::device.PopMatrix();
+}
+
+void Cursor::InitAction(std::function<void(int, int)> action)
+{
+	mAction = action;
+}
+
+void Cursor::Action(int x, int y)
+{
+	mAction(x, y);
 }
 
 }

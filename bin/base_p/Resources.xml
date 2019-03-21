@@ -1,14 +1,16 @@
 <?xml version="1.0"?>
 <Resources>
+  <FreeTypeFonts group="Buttons" upload="false">
+    <font name="arial" family="arial" size="12" color="255;255;255;255" letterSpacing="0">
+      <Effect alpha="0.1" type="shadow" blurX="2" blurY="2" strength="50" angle="0" inner="false" color="255;0;0;255" offset="0"/>
+    </font>
+  </FreeTypeFonts>
 	<FreeTypeFonts group="SaluteGroup" upload="false">
 		<font name="arial" family="arial" size="12" color="255;255;255;255" letterSpacing="0">
 			<Effect alpha="0.1" type="shadow" blurX="2" blurY="2" strength="50" angle="0" inner="false" color="255;0;0;255" offset="0"/>
 		</font>
 	</FreeTypeFonts>
-  <Textures group="SaluteGroup">
-    <texture id="Background1" path="textures/city1.jpg"/>
-    <texture id="Background2" path="textures/city2.jpg"/>
-    <texture id="Background3" path="textures/city3.jpg"/>
+  <Textures group="Buttons">
     <texture id="PlayEnable" path="textures/play_enable.png"/>
     <texture id="PlayDisable" path="textures/play.png"/>
     <texture id="PauseEnable" path="textures/pause_enable.png"/>
@@ -23,7 +25,20 @@
     <texture id="LeftDisable" path="textures/left.png"/>
     <texture id="RightEnable" path="textures/right_enable.png"/>
     <texture id="RightDisable" path="textures/right.png"/>
+  </Textures>
+  <Textures group="SaluteGroup">
     <texture id="SaluteGun" path="textures/salute_gun.png"/>
     <texture id="RedRocket" path="textures/red_rocket.png"/>
   </Textures>
+  <Textures>
+    <texture id="Background1" path="textures/city1.jpg"/>
+    <texture id="Background2" path="textures/city2.jpg"/>
+    <texture id="Background3" path="textures/city3.jpg"/>
+    <texture id="Cursor" path="textures/cursor.png"/>
+  </Textures>
+  <Sounds group="SaluteGroup"> 
+    <sample id="ShotSound" path="sound/shot_sound.ogg" mode="cache" mix="1" volumeFactor="1.0" pan="0"/>
+    <sample id="SaluteSound" path="sound/salute_sound.ogg" mode="cache" mix="1" volumeFactor="1.0" pan="0"/>
+    <sample id="FlySound" path="sound/fly_sound.ogg" mode="cache" mix="1" volumeFactor="1.0" pan="0"/>
+  </Sounds>
 </Resources>
