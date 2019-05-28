@@ -31,9 +31,15 @@
     <texture id="RedRocket" path="textures/red_rocket.png"/>
   </Textures>
   <Textures>
-    <texture id="Background1" path="textures/city1.jpg"/>
-    <texture id="Background2" path="textures/city2.jpg"/>
-    <texture id="Background3" path="textures/city3.jpg"/>
+    <texture id="Background11024" path="textures/city11024.png"/>
+    <texture id="Background11366" path="textures/city11366.png"/>
+    <texture id="Background11920" path="textures/city11920.png"/>
+    <texture id="Background21024" path="textures/city21024.png"/>
+    <texture id="Background21366" path="textures/city21366.png"/>
+    <texture id="Background21920" path="textures/city21920.png"/>
+    <texture id="Background31024" path="textures/city31024.png"/>
+    <texture id="Background31366" path="textures/city31366.png"/>
+    <texture id="Background31920" path="textures/city31920.png"/>
     <texture id="Cursor" path="textures/cursor.png"/>
   </Textures>
   <Sounds group="SaluteGroup"> 

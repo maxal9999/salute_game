@@ -110,10 +110,19 @@ const std::string SALUTE_TYPE_FORTH_NAME = "Salute mixed";
 // Background types
 Config::SettingsType Config::Backgrounds()
 {
+    // Background selection depending on screen resolution
+    int width = Config::WinWidth();
+    if (width < 1920 && width >= 1366)
+        width = 1366;
+    else if (width < 1366)
+        width = 1024;
+
+    std::string width_str = std::to_string(width);
+
     // Backgrounds type
-    auto first_groud = std::make_pair(BACKGROUND_FIRST, BACKGROUND_FIRST_NAME);
-    auto second_groud = std::make_pair(BACKGROUND_SECOND, BACKGROUND_SECOND_NAME);
-    auto third_groud = std::make_pair(BACKGROUND_THIRD, BACKGROUND_THIRD_NAME);
+    auto first_groud = std::make_pair(BACKGROUND_FIRST + width_str, BACKGROUND_FIRST_NAME);
+    auto second_groud = std::make_pair(BACKGROUND_SECOND + width_str, BACKGROUND_SECOND_NAME);
+    auto third_groud = std::make_pair(BACKGROUND_THIRD + width_str, BACKGROUND_THIRD_NAME);
     return { first_groud, second_groud, third_groud };
 }
 
